@@ -1,6 +1,7 @@
 import os
 import logging
 import gi
+import getpass
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Notify', '0.7')
@@ -8,7 +9,7 @@ gi.require_version('Notify', '0.7')
 from locale import atof, setlocale, LC_NUMERIC
 from gi.repository import Notify
 from itertools import islice
-from subprocess import Popen, PIPE, check_call, CalledProcessError
+from subprocess import Popen, PIPE, check_call, call, CalledProcessError
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.client.EventListener import EventListener
 from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent
@@ -45,9 +46,9 @@ class KeywordQueryEventListener(EventListener):
         return RenderResultListAction(list(islice(self.generate_results(event), 15)))
 
     def generate_results(self, event):
-        for (pid, cpu, mem, cmd, cmd_long) in get_process_list():
+        for (pid, cpu, cmd, args) in get_process_list():
             name = ('%s %s' % (cmd, pid))
-            description = ('cpu %% : %s mem %% : %s loc : %s ' % (cpu, mem, cmd_long))
+            description = ('cpu %% : %s loc: %s ' % (cpu, args))
             on_enter = {'alt_enter': False, 'pid': pid, 'cmd': cmd}
             on_alt_enter = on_enter.copy()
             on_alt_enter['alt_enter'] = True
@@ -106,34 +107,36 @@ class ItemEnterEventListener(EventListener):
 
 def get_process_list():
     """
-    Returns a list of tuples (PID, CPU, MEM, COMMAND, LONG_COMMAND)
+    Returns a list of tuples (PID, CPU, COMMAND, LONG_COMMAND)
     """
-    env = os.environ.copy()
-    env['COLUMNS'] = '200'
-    process = Popen(['top', '-bn1', '-u', os.getenv('USER')], stdout=PIPE, env=env)
-    process_lc = Popen(['top', '-bn1', '-cu', os.getenv('USER')], stdout=PIPE, env=env)
-    out = process.communicate()[0]
-    lc_output = process_lc.communicate()[0].split('\n')
-    for idx, line in enumerate(out.split('\n')):
-        col = line.split()
+    pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
+    user = getpass.getuser()
+    print('user name is %s' % user)
+
+    for pid in pids:
+
+        cmd_output = Popen(('ps -p %s -o user -o args -o comm -o pcpu -o time -o etime' % pid), shell=True, stdout=PIPE).stdout.read()
+
+        lines = cmd_output.split('\n')
+
+        output = lines[1]
+        out = output.split()
         try:
-            int(col[0])
+            int(out[0])
         except (ValueError, IndexError):
             # not a number
             continue
 
-        pid = col[0]
-        cpu = atof(col[8])
-        mem = atof(col[9])
-        cmd = ' '.join(col[11:])
-        try:
-            cmd_long = lc_output[idx].split()[11]
-        except (ValueError, IndexError):
-            cmd_long = ""
-        if 'top -bn' in cmd:
+
+        if out[0] is user:
+            print('user: %s cpu: %s cmd: %s args: %s' % (out[0], out[3], out[2], out[1]))
+            cpu = out[3]
+            cmd = out[2]
+            args = out[1]
+        else:
             continue
 
-        yield (pid, cpu, mem, cmd, cmd_long)
+        yield (pid, cpu, cmd, args)
 
 
 if __name__ == '__main__':
