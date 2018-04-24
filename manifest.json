@@ -1,15 +1,15 @@
 {
     "manifest_version": "2",
     "api_version": "1",
-    "name": "Process Killer",
-    "description": "This can kill user processes",
-    "developer_name": "Aleksandr Gornostal",
+    "name": "Process Murderer",
+    "description": "murder your own user processes",
+    "developer_name": "İbrahim Serdar Açıkgöz",
     "icon": "images/icon.png",
     "preferences": [
         {
-            "id": "pkiller_kw",
+            "id": "ukiller_kw",
             "type": "keyword",
-            "name": "Process Killer",
+            "name": "Process Murderer",
             "default_value": "kill"
         }
     ]
