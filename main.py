@@ -2,6 +2,7 @@ import os
 import logging
 import gi
 import getpass
+import multiprocessing
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Notify', '0.7')
@@ -43,12 +44,12 @@ class ProcessKillerExtension(Extension):
 class KeywordQueryEventListener(EventListener):
 
     def on_event(self, event, extension):
-        return RenderResultListAction(list(islice(self.generate_results(event), 15)))
+        return RenderResultListAction(list(islice(self.generate_results(event), 10)))
 
     def generate_results(self, event):
-        for (pid, cpu, cmd, args) in get_process_list():
-            name = ('%s %s' % (cmd, pid))
-            description = ('cpu %% : %s loc: %s ' % (cpu, args))
+        for (pid, cmd, args) in get_process_list():
+            name = ('%s' % (cmd))
+            description = ('PID: %s\t%s ' % (pid, args))
             on_enter = {'alt_enter': False, 'pid': pid, 'cmd': cmd}
             on_alt_enter = on_enter.copy()
             on_alt_enter['alt_enter'] = True
@@ -107,37 +108,28 @@ class ItemEnterEventListener(EventListener):
 
 def get_process_list():
     """
-    Returns a list of tuples (PID, CPU, COMMAND, LONG_COMMAND)
+    Returns a list of tuples (PID, COMMAND, ARGS)
     """
     pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
     user = getpass.getuser()
-    print('user name is %s' % user)
 
-    for pid in pids:
+    pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    results = pool.map(getProcessInformation, pids)
+    pool.close()
 
-        cmd_output = Popen(('ps -p %s -o user -o args -o comm -o pcpu -o time -o etime' % pid), shell=True, stdout=PIPE).stdout.read()
+    gen = (result for result in results if result[1] == user)
 
-        lines = cmd_output.split('\n')
+    for result in gen:
+        yield (result[0], result[3], result[2])
 
-        output = lines[1]
-        out = output.split()
-        try:
-            int(out[0])
-        except (ValueError, IndexError):
-            # not a number
-            continue
-
-
-        if out[0] is user:
-            print('user: %s cpu: %s cmd: %s args: %s' % (out[0], out[3], out[2], out[1]))
-            cpu = out[3]
-            cmd = out[2]
-            args = out[1]
-        else:
-            continue
-
-        yield (pid, cpu, cmd, args)
-
+def getProcessInformation(pid):
+    cmd_output = Popen(('ps -p %s -o user:32 -o args -o comm' % pid), shell=True, stdout=PIPE).stdout.read()
+    lines = cmd_output.split('\n')
+    out = lines[1].split()
+    uname = out[0]
+    args = out[1]
+    cmd = out[2]
+    return [pid, uname, args, cmd]
 
 if __name__ == '__main__':
     ProcessKillerExtension().run()
