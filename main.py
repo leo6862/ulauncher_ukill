@@ -111,12 +111,16 @@ def get_process_list():
     user = getpass.getuser()
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    results = []
     results = pool.map(getProcessInformation, pids)
     pool.close()
 
     gen = (result for result in results if result[1] == user)
     for result in gen:
-        yield (result[0], result[3], result[2])
+        pid = result[0]
+        cmd = result[3]
+        args = result[2]
+        yield (pid, cmd, args)
 
 def getProcessInformation(pid):
     cmd_output = Popen(('ps -p %s -o user:32 -o args -o comm' % pid), shell=True, stdout=PIPE).stdout.read()
