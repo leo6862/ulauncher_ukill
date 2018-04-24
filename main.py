@@ -107,9 +107,6 @@ class ItemEnterEventListener(EventListener):
 
 
 def get_process_list():
-    """
-    Returns a list of tuples (PID, COMMAND, ARGS)
-    """
     pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
     user = getpass.getuser()
 
@@ -118,7 +115,6 @@ def get_process_list():
     pool.close()
 
     gen = (result for result in results if result[1] == user)
-
     for result in gen:
         yield (result[0], result[3], result[2])
 
