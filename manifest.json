@@ -3,7 +3,7 @@
     "api_version": "1",
     "name": "Process Murderer",
     "description": "murder your own user processes",
-    "developer_name": "İbrahim Serdar Açıkgöz",
+    "developer_name": "İbrahim Serdar Açıkgöz and Aleksandr Gornostal",
     "icon": "images/icon.png",
     "preferences": [
         {
