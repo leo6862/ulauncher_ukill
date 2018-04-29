@@ -1,4 +1,6 @@
-# Killer Extension
 
-<img aligh="center" src="http://i.imgur.com/w4xMfLt.png">
-<img aligh="center" src="http://i.imgur.com/DT7Ymz4.png">
+# UKill, kill your own processes with style
+
+Inspired by Sindre's fkill project and applied it to ulauncher processs killer extension.
+
+![animation](resource/animation.gif?raw=true "Ulauncher")

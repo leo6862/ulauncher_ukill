@@ -49,7 +49,9 @@ class KeywordQueryEventListener(EventListener):
     def generate_results(self, event):
         for (pid, cmd, path, arg) in get_process_list():
             name = ('%s' % (cmd))
-            description = ('PID: %s\t%s \nargs: %s' % (pid, path, arg))
+            description = ('PID: %s\t command: %s ' % (pid, path))
+            if len(arg) > 0:
+            	description += '\nargs: %s' % arg
             on_enter = {'alt_enter': False, 'pid': pid, 'cmd': cmd}
             on_alt_enter = on_enter.copy()
             on_alt_enter['alt_enter'] = True
