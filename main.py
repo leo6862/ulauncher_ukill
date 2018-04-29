@@ -56,7 +56,7 @@ class KeywordQueryEventListener(EventListener):
             on_alt_enter = on_enter.copy()
             on_alt_enter['alt_enter'] = True
             if event.get_argument():
-                if event.get_argument() in cmd+pid:
+                if event.get_argument() in cmd or event.get_argument() == pid:
                     yield ExtensionResultItem(icon=exec_icon,
                                                    name=name,
                                                    description=description,
