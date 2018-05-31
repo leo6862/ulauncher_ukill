@@ -11,6 +11,12 @@
             "type": "keyword",
             "name": "Process Murderer",
             "default_value": "kill"
+        },
+        {
+            "id": "ukiller_killall",
+            "type": "keyword",
+            "name": "Multiple Processes Murderer",
+            "default_value": "killall"
         }
     ]
 }
