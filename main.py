@@ -53,6 +53,8 @@ class KeywordQueryEventListener(EventListener):
             if len(arg) > 0:
             	description += '\nargs: %s' % arg
             on_enter = {'alt_enter': False, 'pid': pid, 'cmd': cmd}
+            on_enter['keyword'] = event.get_keyword()
+            on_enter['argument'] = event.get_argument()
             on_alt_enter = on_enter.copy()
             on_alt_enter['alt_enter'] = True
             if event.get_argument():
@@ -86,6 +88,20 @@ class ItemEnterEventListener(EventListener):
             extension.show_notification("Error", "Check the logs")
             raise
 
+    def killall(self, extension, keyword):
+        cmd = ['killall', keyword]
+        logger.info(' '.join(cmd))
+
+        try:
+            check_call(cmd) == 0
+            extension.show_notification("Done", "It's dead now", icon=dead_icon)
+        except CalledProcessError as e:
+            extension.show_notification("Error", "'kill' returned code %s" % e.returncode)
+        except Exception as e:
+            logger.error('%s: %s' % (type(e).__name__, e.message))
+            extension.show_notification("Error", "Check the logs")
+            raise
+
     def show_signal_options(self, data):
         result_items = []
         options = [('TERM', '15 TERM (default)'), ('KILL', '9 KILL'), ('HUP', '1 HUP')]
@@ -105,7 +121,10 @@ class ItemEnterEventListener(EventListener):
         if data['alt_enter']:
             return self.show_signal_options(data)
         else:
-            self.kill(extension, data['pid'], data.get('signal', 'TERM'))
+            if data['keyword'] == 'killall':
+                self.killall(extension, data['argument'])
+            if data['keyword'] == 'kill':
+                self.kill(extension, data['pid'], data.get('signal', 'TERM'))
 
 
 def get_process_list():
