@@ -3,9 +3,9 @@
 
 Inspired by Sindre's fkill project and applied it to ulauncher processs killer extension.
 
-![animation](resource/animation.gif?raw=true "Ulauncher")
-
 ## Usage
 - kill #     : kills the process with given ID
 - kill ""    : kill the first match of given string
 - killall "" : kill all the matches of given string
+
+![animation](resource/animation.gif?raw=true "Ulauncher")
