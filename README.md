@@ -1,7 +1,7 @@
 
-# UKill, kill your own processes with style
+# UKill
 
-A ulauncher processs killer extension.
+A ulauncher processs killer extension. Kill your own processes with style
 
 ## Usage
 - kill #     : kills the process with given ID
