@@ -84,7 +84,7 @@ class ItemEnterEventListener(EventListener):
         except CalledProcessError as e:
             extension.show_notification("Error", "'kill' returned code %s" % e.returncode)
         except Exception as e:
-            logger.error('%s: %s' % (type(e).__name__, e.message))
+            logger.error('%s: %s' % (type(e).__name__, e.args[0]))
             extension.show_notification("Error", "Check the logs")
             raise
 
@@ -98,7 +98,7 @@ class ItemEnterEventListener(EventListener):
         except CalledProcessError as e:
             extension.show_notification("Error", "'kill' returned code %s" % e.returncode)
         except Exception as e:
-            logger.error('%s: %s' % (type(e).__name__, e.message))
+            logger.error('%s: %s' % (type(e).__name__, e.args[0]))
             extension.show_notification("Error", "Check the logs")
             raise
 
@@ -111,7 +111,7 @@ class ItemEnterEventListener(EventListener):
             on_enter['signal'] = sig
             result_items.append(ExtensionResultItem(icon=ext_icon,
                                                          name=name,
-                                                         description=description,
+                                                         description='',
                                                          highlightable=False,
                                                          on_enter=ExtensionCustomAction(on_enter)))
         return RenderResultListAction(result_items)
@@ -129,8 +129,8 @@ class ItemEnterEventListener(EventListener):
 
 def get_process_list():
     user = getpass.getuser()
-    pids_with_short_name = subprocess.Popen(['ps', '-U', user], stdout=subprocess.PIPE).communicate()[0].split('\n')
-    pids_with_path_and_args = subprocess.Popen(['ps', '-U', user, '-f'], stdout=subprocess.PIPE).communicate()[0].split('\n')
+    pids_with_short_name = subprocess.Popen(['ps', '-U', user], stdout=subprocess.PIPE).communicate()[0].decode('utf8').split('\n')
+    pids_with_path_and_args = subprocess.Popen(['ps', '-U', user, '-f'], stdout=subprocess.PIPE).communicate()[0].decode('utf8').split('\n')
 
     for idx, line in enumerate(pids_with_short_name):
         col = line.split()
