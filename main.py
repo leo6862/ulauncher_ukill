@@ -144,7 +144,7 @@ def get_process_list():
         pid = col[0]
         cmd = col[3]
         path = kol[7]
-	try:
+        try:
             arg = kol[8]
         except (ValueError, IndexError):
             arg = ''
