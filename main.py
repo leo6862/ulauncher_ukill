@@ -96,7 +96,7 @@ class ItemEnterEventListener(EventListener):
             check_call(cmd) == 0
             extension.show_notification("Done", "It's dead now", icon=dead_icon)
         except CalledProcessError as e:
-            extension.show_notification("Error", "'kill' returned code %s" % e.returncode)
+            extension.show_notification("Error!", "'kill' returned code %s" % e.returncode)
         except Exception as e:
             logger.error('%s: %s' % (type(e).__name__, e.args[0]))
             extension.show_notification("Error", "Check the logs")
